@@ -19,21 +19,21 @@ workflows:
 
   ios-workflow:
     name: iOS Build
-    max_build_duration: 45
     environment:
       flutter: stable
       xcode: latest
     scripts:
       - name: Get packages
         script: flutter packages pub get
-      - name: Decode Firebase config
-        script: |
-          echo $FIREBASE_IOS_SECRET | base64 --decode > $CM_BUILD_DIR/ios/Runner/GoogleService-Info.plist
       - name: Build iOS
         script: flutter build ios --release --no-codesign
+      - name: Create IPA
+        script: |
+          mkdir -p build/ios/ipa
+          cd build/ios/iphoneos
+          mkdir Payload
+          cp -r Runner.app Payload/
+          zip -r ../ipa/Runner.ipa Payload
     artifacts:
-      - build/ios/iphoneos/Runner.ipa
-    publishing:
-      email:
-        recipients:
-          - tu-email@ejemplo.com
+      - build/ios/ipa/Runner.ipa
+      - build/ios/iphoneos/Runner.app
